@@ -539,6 +539,8 @@ export async function build(options: BuildOptions): Promise<void> {
       includeDeclarations: options.declaration === "separate",
       includeTsLib: options.compilerOptions?.importHelpers,
       shims: options.shims,
+      testColor: options.shims.testColor ?? true,
+      testRunner: options.shims.testRunner ?? true,
     });
     writeFile(
       path.join(options.outDir, "package.json"),
@@ -574,7 +576,9 @@ export async function build(options: BuildOptions): Promise<void> {
   }
 
   async function transformEntryPoints(): Promise<TransformOutput> {
-    const { shims, testShims } = shimOptionsToTransformShims(options.shims);
+    const { shims, testShims, useGlobalThisShim } = shimOptionsToTransformShims(
+      options.shims,
+    );
     return transform({
       entryPoints: entryPoints.map((e) => e.path),
       testEntryPoints: options.test
@@ -591,6 +595,7 @@ export async function build(options: BuildOptions): Promise<void> {
       importMap: options.importMap,
       configFile: options.configFile,
       cwd: path.toFileUrl(cwd).toString(),
+      useGlobalThisShim,
     });
   }
 
